@@ -1,0 +1,59 @@
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: myflaskapp
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+
+  microusers:
+    build: ./microUsers
+    container_name: micro_users
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - FLASK_ENV=development
+    ports:
+      - "5002:5002"
+
+  microorders:
+    build: ./microOrders
+    container_name: micro_orders
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - FLASK_ENV=development
+    ports:
+      - "5004:5004"
+
+  microproducts:
+    build: ./microProducts
+    container_name: micro_products
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - FLASK_ENV=development
+    ports:
+      - "5003:5003"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_app
+    restart: always
+    depends_on:
+      - microusers
+      - microorders
+      - microproducts
+    ports:
+      - "5000:5000"
+
+
